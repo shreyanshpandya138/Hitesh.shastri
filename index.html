@@ -215,6 +215,32 @@
       margin-bottom: 1rem;
     }
 
+    .trust-points {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 0.35rem 0 1.15rem;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.7rem 1rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 223, 135, 0.18);
+      color: #fff4cf;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    }
+
+    .trust-pill strong {
+      color: var(--accent-strong);
+      font-size: 1rem;
+    }
+
     .contact-card {
       display: grid;
       gap: 0.55rem;
@@ -461,7 +487,8 @@
       }
 
       .lang-switch,
-      .hero-actions {
+      .hero-actions,
+      .trust-points {
         justify-content: center;
       }
 
@@ -494,6 +521,11 @@
         <div class="eyebrow">Divine insight for life, family, and peace</div>
         <h2 id="hero-title">Ishavashyam Astrologer - Authentic Guidance</h2>
         <p id="hero-sub">Experienced Pandit and Astrologer for practical life solutions, karmic balance, and spiritual upliftment.</p>
+        <div class="trust-points">
+          <div class="trust-pill" id="experience-pill"><strong>32+</strong> Years of Experience</div>
+          <div class="trust-pill" id="location-pill"><strong>Serving</strong> Gujarat | India</div>
+          <div class="trust-pill" id="tagline-pill"><strong>Your questions,</strong> my solutions.</div>
+        </div>
 
         <div class="contact-card">
           <p><strong>Name:</strong> Hitesh Pandya (Shastri)</p>
@@ -591,7 +623,10 @@
     const data = {
       en: {
         heroTitle: "Ishavashyam Astrologer - Authentic Guidance",
-        heroSub: "Experienced Pandit and Astrologer for practical life solutions, karmic balance, and spiritual upliftment.",
+        heroSub: "32 years of trusted astrological and spiritual guidance for practical life solutions, karmic balance, and lasting peace across Gujarat and India.",
+        experiencePill: "<strong>32+</strong> Years of Experience",
+        locationPill: "<strong>Serving</strong> Gujarat | India",
+        taglinePill: "<strong>Your questions,</strong> my solutions.",
         contactNote: "Janma Kundali astrology fee is based on your choice; there is no fixed fee. Consultation is compassionate, respectful, and transparent.",
         services: "Services & Specialties",
         servicesLead: "Traditional Vedic knowledge, practical guidance, and respectful consultation for modern life challenges.",
@@ -616,6 +651,9 @@
       gu: {
         heroTitle: "ઈશાવશ્યમ જ્યોતિષ - સાચું માર્ગદર્શન",
         heroSub: "અનુભવી પંડિત અને જ્યોતિષી, જીવનના વ્યવહારિક પ્રશ્નો, કર્મ સંતુલન અને આધ્યાત્મિક શાંતિ માટે માર્ગદર્શન.",
+        experiencePill: "<strong>32+</strong> વર્ષનો અનુભવ",
+        locationPill: "<strong>સેવા</strong> Gujarat | India",
+        taglinePill: "<strong>તમારા પ્રશ્નો,</strong> મારા ઉકેલ.",
         contactNote: "જન્મકુંડળી માટેની ફી તમારી ઇચ્છા મુજબ છે; કોઈ નક્કી ફી નથી. પરામર્શ સન્માનપૂર્ણ અને પારદર્શક છે.",
         services: "સેવાઓ અને વિશેષતા",
         servicesLead: "પરંપરાગત વૈદિક જ્ઞાન સાથે આજના જીવન માટે ઉપયોગી માર્ગદર્શન.",
@@ -640,6 +678,9 @@
       hi: {
         heroTitle: "ईशावश्यम ज्योतिष - सच्चा मार्गदर्शन",
         heroSub: "अनुभवी पंडित और ज्योतिषी, जीवन की व्यावहारिक समस्याओं, कर्म संतुलन और आध्यात्मिक शांति के लिए मार्गदर्शन।",
+        experiencePill: "<strong>32+</strong> वर्ष का अनुभव",
+        locationPill: "<strong>सेवा</strong> Gujarat | India",
+        taglinePill: "<strong>आपके प्रश्न,</strong> मेरे समाधान।",
         contactNote: "जन्मकुंडली के लिए शुल्क आपकी इच्छा पर आधारित है; कोई तय शुल्क नहीं है। परामर्श सम्मानपूर्ण और पारदर्शी है।",
         services: "सेवाएं और विशेषताएं",
         servicesLead: "परंपरागत वैदिक ज्ञान के साथ आज के जीवन के लिए उपयोगी मार्गदर्शन।",
@@ -666,6 +707,9 @@
     const els = {
       heroTitle: document.getElementById("hero-title"),
       heroSub: document.getElementById("hero-sub"),
+      experiencePill: document.getElementById("experience-pill"),
+      locationPill: document.getElementById("location-pill"),
+      taglinePill: document.getElementById("tagline-pill"),
       noFee: document.getElementById("no-fee"),
       serviceSection: document.getElementById("service-section"),
       testimonials: document.getElementById("testimonials").querySelector("h3"),
@@ -680,6 +724,9 @@
 
       els.heroTitle.textContent = d.heroTitle;
       els.heroSub.textContent = d.heroSub;
+      els.experiencePill.innerHTML = d.experiencePill;
+      els.locationPill.innerHTML = d.locationPill;
+      els.taglinePill.innerHTML = d.taglinePill;
       els.noFee.textContent = d.contactNote;
       els.serviceSection.querySelector("h3").textContent = d.services;
       els.serviceSection.querySelector(".section-lead").textContent = d.servicesLead;
