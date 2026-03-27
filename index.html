@@ -618,39 +618,6 @@
       opacity: 1;
     }
 
-    .review-feed {
-      width: min(100%, 350px);
-      margin-top: 1rem;
-      display: grid;
-      gap: 0.75rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .review-feed-card {
-      padding: 0.95rem 1rem;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-    }
-
-    .review-feed-card strong {
-      color: var(--accent-strong);
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .review-feed-card p,
-    .review-feed-card small {
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .review-feed-empty {
-      color: #fff1c4;
-    }
-
     .reviews-wall {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -718,9 +685,6 @@
         order: -1;
       }
 
-      .review-feed {
-        width: 100%;
-      }
     }
 
     @media (max-width: 640px) {
@@ -865,9 +829,6 @@
         <div class="portrait-frame">
           <img src="photo.jpg" alt="Hitesh Pandya (Shastri)" class="pro-photo" onerror="this.style.display='none'; document.getElementById('photo-fallback').style.display='flex';" />
           <div id="photo-fallback" class="photo-fallback">Photo not found. Please keep <strong>photo.jpg</strong> in the same folder as this file.</div>
-        </div>
-        <div class="review-feed" id="review-feed">
-          <div class="review-feed-card review-feed-empty">Reviews will appear here.</div>
         </div>
       </div>
     </section>
@@ -1052,7 +1013,6 @@
       viewCount: document.getElementById("view-count"),
       reviewCount: document.getElementById("review-count"),
       viewerList: document.getElementById("viewer-list"),
-      reviewFeed: document.getElementById("review-feed"),
       reviewsWall: document.getElementById("reviews-wall"),
       reviewShell: document.getElementById("review-shell"),
       openReview: document.getElementById("open-review"),
@@ -1131,7 +1091,6 @@
       }
 
       if (!uniqueReviews.length) {
-        els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
         els.reviewsWall.innerHTML = `
           <div class="full-review-card">
             <p>No reviews submitted yet.</p>
@@ -1139,14 +1098,6 @@
         `;
         return;
       }
-
-      els.reviewFeed.innerHTML = uniqueReviews.slice(0, 3).map((item) => `
-        <div class="review-feed-card">
-          <strong>${item.rating} Star ${item.emoji}</strong>
-          <p>${escapeHtml(item.description)}</p>
-          <small>${new Date(item.created_at).toLocaleDateString()}</small>
-        </div>
-      `).join("");
 
       els.reviewsWall.innerHTML = uniqueReviews.map((item) => `
         <div class="full-review-card">
@@ -1174,7 +1125,6 @@
           emoji: emojiByRating[item.rating] || "🙂"
         })));
       } catch (error) {
-        els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
         els.reviewsWall.innerHTML = `
           <div class="full-review-card">
             <p>No reviews submitted yet.</p>
