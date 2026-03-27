@@ -1,14 +1,1 @@
-CREATE DATABASE IF NOT EXISTS portfolio_reviews
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
 
-USE portfolio_reviews;
-
-CREATE TABLE IF NOT EXISTS reviews (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(120) NOT NULL,
-  rating TINYINT UNSIGNED NOT NULL,
-  description TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 5)
-);
