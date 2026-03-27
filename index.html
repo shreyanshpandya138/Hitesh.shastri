@@ -806,11 +806,6 @@
 
         <div class="review-card">
           <form class="review-form" id="review-form">
-            <div class="field">
-              <label for="reviewer-name">Name</label>
-              <input id="reviewer-name" name="reviewerName" type="text" required />
-            </div>
-
             <div class="rating-row">
               <div class="field">
                 <label>Rating</label>
@@ -954,7 +949,12 @@
     <p>&copy; 2026 Ishavashyam Astrologer. All rights reserved.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://kukqcbjdeqohsmpnvtxs.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_NW2d6IbTyOt5_3iYiMLH-w_wBZjxfZR";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const data = {
       en: {
         heroTitle: "Ishavashyam Astrologer - Authentic Guidance",
@@ -1048,6 +1048,7 @@
       reviewForm: document.getElementById("review-form"),
       reviewSubmit: document.getElementById("review-submit"),
       submitStatus: document.getElementById("submit-status"),
+      reviewText: document.getElementById("review-text"),
       viewCount: document.getElementById("view-count"),
       reviewCount: document.getElementById("review-count"),
       viewerList: document.getElementById("viewer-list"),
@@ -1066,11 +1067,6 @@
       visitors: "portfolio_visitors"
     };
 
-    const API_ENDPOINTS = {
-      submitReview: "submit_review.php",
-      getReviews: "get_reviews.php"
-    };
-
     const emojiByRating = {
       1: "😞",
       2: "😕",
@@ -1083,7 +1079,7 @@
     let isSubmitting = false;
 
     function escapeHtml(value) {
-      return value
+      return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -1104,9 +1100,19 @@
       localStorage.setItem(STORAGE_KEYS.visitors, JSON.stringify(visitors.slice(0, 8)));
     }
 
+    function setRating(rating) {
+      selectedRating = rating;
+      if (!isSubmitting) {
+        els.submitStatus.textContent = "";
+      }
+      updateReviewState();
+    }
+
     function renderReviews(reviews) {
       const visitors = getStoredVisitors();
-      els.reviewCount.textContent = String(reviews.length);
+      const uniqueReviews = Array.from(new Map(reviews.map((item) => [item.id, item])).values());
+
+      els.reviewCount.textContent = String(uniqueReviews.length);
 
       if (!visitors.length) {
         els.viewerList.innerHTML = `
@@ -1124,7 +1130,7 @@
         `).join("");
       }
 
-      if (!reviews.length) {
+      if (!uniqueReviews.length) {
         els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
         els.reviewsWall.innerHTML = `
           <div class="full-review-card">
@@ -1134,40 +1140,39 @@
         return;
       }
 
-      els.reviewFeed.innerHTML = reviews.slice(0, 3).map((item) => `
+      els.reviewFeed.innerHTML = uniqueReviews.slice(0, 3).map((item) => `
         <div class="review-feed-card">
-          <strong>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</strong>
+          <strong>${item.rating} Star ${item.emoji}</strong>
           <p>${escapeHtml(item.description)}</p>
+          <small>${new Date(item.created_at).toLocaleDateString()}</small>
         </div>
       `).join("");
 
-      els.reviewsWall.innerHTML = reviews.map((item) => `
+      els.reviewsWall.innerHTML = uniqueReviews.map((item) => `
         <div class="full-review-card">
-          <strong>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</strong>
+          <strong>${item.rating} Star ${item.emoji}</strong>
           <p>${escapeHtml(item.description)}</p>
+          <small>${new Date(item.created_at).toLocaleDateString()}</small>
         </div>
       `).join("");
     }
 
     async function loadReviews() {
       try {
-        const response = await fetch(API_ENDPOINTS.getReviews, {
-          headers: {
-            "Accept": "application/json"
-          }
-        });
+        const { data: reviews, error } = await supabaseClient
+          .from("reviews")
+          .select("id, rating, description, created_at")
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false });
 
-        if (!response.ok) {
-          throw new Error("Unable to load reviews.");
+        if (error) {
+          throw error;
         }
 
-        const payload = await response.json();
-
-        if (!payload.success || !Array.isArray(payload.reviews)) {
-          throw new Error(payload.message || "Invalid review response.");
-        }
-
-        renderReviews(payload.reviews);
+        renderReviews((reviews || []).map((item) => ({
+          ...item,
+          emoji: emojiByRating[item.rating] || "🙂"
+        })));
       } catch (error) {
         els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
         els.reviewsWall.innerHTML = `
@@ -1191,9 +1196,8 @@
         button.classList.toggle("active", Boolean(selectedRating && buttonRating <= selectedRating));
       });
 
-      const nameValue = document.getElementById("reviewer-name").value.trim();
-      const reviewValue = document.getElementById("review-text").value.trim();
-      const ready = Boolean(nameValue && reviewValue && selectedRating >= 1 && !isSubmitting);
+      const reviewValue = els.reviewText.value.trim();
+      const ready = Boolean(reviewValue && selectedRating >= 1 && !isSubmitting);
 
       els.reviewSubmit.disabled = !ready;
     }
@@ -1219,31 +1223,7 @@
       els.faqHeader.nextElementSibling.innerHTML = d.faqSteps.map((item) => `<li>${item}</li>`).join("");
     }
 
-    document.querySelectorAll(".lang-switch button").forEach((button) => {
-      button.addEventListener("click", () => setLanguage(button.dataset.lang));
-    });
-
-    document.querySelectorAll(".rating-btn").forEach((button) => {
-      button.addEventListener("click", () => {
-        const rating = Number(button.dataset.rating);
-        selectedRating = rating;
-        if (!isSubmitting) {
-          els.submitStatus.textContent = "";
-        }
-        updateReviewState();
-      });
-    });
-
-    ["reviewer-name", "review-text"].forEach((id) => {
-      document.getElementById(id).addEventListener("input", () => {
-        if (!isSubmitting) {
-          els.submitStatus.textContent = "";
-        }
-        updateReviewState();
-      });
-    });
-
-    els.reviewForm.addEventListener("submit", async (event) => {
+    async function submitReview(event) {
       event.preventDefault();
       updateReviewState();
 
@@ -1251,30 +1231,28 @@
         return;
       }
 
-      const name = document.getElementById("reviewer-name").value.trim();
-      const reviewText = document.getElementById("review-text").value.trim();
+      const reviewText = els.reviewText.value.trim();
+
+      if (!reviewText) {
+        return;
+      }
+
       isSubmitting = true;
       els.submitStatus.textContent = "Submitting review...";
       updateReviewState();
 
       try {
-        const response = await fetch(API_ENDPOINTS.submitReview, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            name,
-            rating: selectedRating,
-            description: reviewText
-          })
-        });
+        const { error } = await supabaseClient
+          .from("reviews")
+          .insert([
+            {
+              rating: selectedRating,
+              description: reviewText
+            }
+          ]);
 
-        const payload = await response.json();
-
-        if (!response.ok || !payload.success) {
-          throw new Error(payload.message || "Unable to submit review.");
+        if (error) {
+          throw error;
         }
 
         els.reviewForm.reset();
@@ -1285,12 +1263,29 @@
         updateReviewState();
         document.getElementById("reviews-list").scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
-        els.submitStatus.textContent = error.message || "Unable to submit review right now.";
+        els.submitStatus.textContent = "Unable to submit review right now.";
       } finally {
         isSubmitting = false;
         updateReviewState();
       }
+    }
+
+    document.querySelectorAll(".lang-switch button").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.lang));
     });
+
+    document.querySelectorAll(".rating-btn").forEach((button) => {
+      button.addEventListener("click", () => setRating(Number(button.dataset.rating)));
+    });
+
+    els.reviewText.addEventListener("input", () => {
+      if (!isSubmitting) {
+        els.submitStatus.textContent = "";
+      }
+      updateReviewState();
+    });
+
+    els.reviewForm.addEventListener("submit", submitReview);
 
     els.openReview.addEventListener("click", () => {
       els.reviewShell.classList.toggle("hidden");
