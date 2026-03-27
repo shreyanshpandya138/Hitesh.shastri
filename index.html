@@ -1169,10 +1169,10 @@
 
         renderReviews(payload.reviews);
       } catch (error) {
-        els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Unable to load reviews right now.</div>`;
+        els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
         els.reviewsWall.innerHTML = `
           <div class="full-review-card">
-            <p>Reviews could not be loaded.</p>
+            <p>No reviews submitted yet.</p>
           </div>
         `;
         els.reviewCount.textContent = "0";
