@@ -455,6 +455,169 @@
       font-size: 0.95rem;
     }
 
+    .review-shell {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 1.2rem;
+      align-items: start;
+    }
+
+    .review-stats {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .stat-box,
+    .review-card {
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-box strong {
+      display: block;
+      color: var(--accent-strong);
+      font-size: 1.4rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-box span,
+    .review-note,
+    .viewer-note {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .viewer-list {
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+    }
+
+    .viewer-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #f5f7ff;
+    }
+
+    .viewer-item small {
+      color: var(--muted);
+    }
+
+    .review-form {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .field label {
+      color: #fff1c4;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      background: rgba(8, 12, 25, 0.88);
+      color: var(--text);
+      padding: 0.9rem 1rem;
+      font: inherit;
+    }
+
+    .field textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .rating-row {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .rating-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .rating-btn {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .rating-btn:hover,
+    .rating-btn.active {
+      background: linear-gradient(135deg, #ffdf87, #f0b43f);
+      color: #23190a;
+      border-color: rgba(255, 223, 135, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .rating-display {
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: rgba(243, 196, 91, 0.09);
+      border: 1px solid rgba(243, 196, 91, 0.18);
+      color: #fff4cf;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+    }
+
+    .review-submit {
+      border: none;
+      cursor: pointer;
+    }
+
+    .review-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .submit-status {
+      color: #fff1c4;
+      line-height: 1.5;
+    }
+
     .footer {
       padding: 0.4rem 1rem 1.6rem;
       text-align: center;
@@ -463,6 +626,10 @@
 
     @media (max-width: 880px) {
       .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .review-shell {
         grid-template-columns: 1fr;
       }
 
@@ -495,6 +662,10 @@
       .hero-left {
         text-align: center;
       }
+
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -516,6 +687,80 @@
   </header>
 
   <main class="container">
+    <section class="card" id="review-section">
+      <div class="review-shell">
+        <div class="review-stats">
+          <div>
+            <h3 class="section-title">Review & Visitor Response</h3>
+            <p class="section-lead">Visitors can share their experience here. Reviews start from 3 stars, and the message is prepared for direct email sending.</p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <strong id="view-count">0</strong>
+              <span>Views on this browser</span>
+            </div>
+            <div class="stat-box">
+              <strong id="review-count">0</strong>
+              <span>Reviews prepared from this browser</span>
+            </div>
+          </div>
+
+          <div class="review-card">
+            <p class="viewer-note">Recent review senders from this browser</p>
+            <div class="viewer-list" id="viewer-list">
+              <div class="viewer-item">
+                <span>No review sender yet</span>
+                <small>Waiting for first review</small>
+              </div>
+            </div>
+          </div>
+
+          <p class="review-note">Viewer accounts cannot be identified automatically on a simple static page unless the site is connected to login or backend analytics.</p>
+        </div>
+
+        <div class="review-card">
+          <h3 class="section-title">Share Your Review</h3>
+          <p class="section-lead">Select 3, 4, or 5 stars, write your feedback, and an email draft will open for sending.</p>
+
+          <form class="review-form" id="review-form">
+            <div class="input-grid">
+              <div class="field">
+                <label for="reviewer-name">Your Name</label>
+                <input id="reviewer-name" name="reviewerName" type="text" placeholder="Enter your full name" required />
+              </div>
+              <div class="field">
+                <label for="reviewer-email">Your Email</label>
+                <input id="reviewer-email" name="reviewerEmail" type="email" placeholder="Enter your email address" required />
+              </div>
+            </div>
+
+            <div class="rating-row">
+              <div class="field">
+                <label>Star Rating</label>
+                <div class="rating-buttons">
+                  <button class="rating-btn" type="button" data-rating="3">3 Star 🙂</button>
+                  <button class="rating-btn" type="button" data-rating="4">4 Star 😊</button>
+                  <button class="rating-btn" type="button" data-rating="5">5 Star 🤩</button>
+                </div>
+              </div>
+              <div class="rating-display" id="rating-display">Choose a rating from 3 stars or above to begin your review.</div>
+            </div>
+
+            <div class="field">
+              <label for="review-text">Review Description</label>
+              <textarea id="review-text" name="reviewText" placeholder="Write your experience, guidance received, or why you recommend this consultation." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn-call review-submit" id="review-submit" type="submit" disabled>Send Review by Email</button>
+              <p class="submit-status" id="submit-status">Complete all fields and choose 3, 4, or 5 stars.</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <section class="hero card">
       <div class="hero-left">
         <div class="eyebrow">Divine insight for life, family, and peace</div>
@@ -710,11 +955,103 @@
       experiencePill: document.getElementById("experience-pill"),
       locationPill: document.getElementById("location-pill"),
       taglinePill: document.getElementById("tagline-pill"),
+      reviewForm: document.getElementById("review-form"),
+      ratingDisplay: document.getElementById("rating-display"),
+      reviewSubmit: document.getElementById("review-submit"),
+      submitStatus: document.getElementById("submit-status"),
+      viewCount: document.getElementById("view-count"),
+      reviewCount: document.getElementById("review-count"),
+      viewerList: document.getElementById("viewer-list"),
       noFee: document.getElementById("no-fee"),
       serviceSection: document.getElementById("service-section"),
       testimonials: document.getElementById("testimonials").querySelector("h3"),
       faqHeader: document.getElementById("faq-section").querySelector("h3")
     };
+
+    const STORAGE_KEYS = {
+      views: "portfolio_view_count",
+      reviews: "portfolio_review_senders"
+    };
+
+    const emojiByRating = {
+      3: "🙂",
+      4: "😊",
+      5: "🤩"
+    };
+
+    let selectedRating = null;
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getStoredReviews() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.reviews) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveStoredReviews(reviews) {
+      localStorage.setItem(STORAGE_KEYS.reviews, JSON.stringify(reviews.slice(0, 6)));
+    }
+
+    function renderStoredReviews() {
+      const reviews = getStoredReviews();
+      els.reviewCount.textContent = String(reviews.length);
+
+      if (!reviews.length) {
+        els.viewerList.innerHTML = `
+          <div class="viewer-item">
+            <span>No review sender yet</span>
+            <small>Waiting for first review</small>
+          </div>
+        `;
+        return;
+      }
+
+      els.viewerList.innerHTML = reviews.map((item) => `
+        <div class="viewer-item">
+          <span>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</span>
+          <small>${escapeHtml(item.email)}</small>
+        </div>
+      `).join("");
+    }
+
+    function updateViewCount() {
+      const current = Number(localStorage.getItem(STORAGE_KEYS.views) || "0") + 1;
+      localStorage.setItem(STORAGE_KEYS.views, String(current));
+      els.viewCount.textContent = String(current);
+    }
+
+    function updateReviewState() {
+      document.querySelectorAll(".rating-btn").forEach((button) => {
+        button.classList.toggle("active", Number(button.dataset.rating) === selectedRating);
+      });
+
+      if (!selectedRating) {
+        els.ratingDisplay.textContent = "Choose a rating from 3 stars or above to begin your review.";
+      } else {
+        els.ratingDisplay.textContent = `${selectedRating} Star ${emojiByRating[selectedRating]} selected. Share your experience below.`;
+      }
+
+      const nameValue = document.getElementById("reviewer-name").value.trim();
+      const emailValue = document.getElementById("reviewer-email").value.trim();
+      const reviewValue = document.getElementById("review-text").value.trim();
+      const ready = Boolean(nameValue && emailValue && reviewValue && selectedRating >= 3);
+
+      els.reviewSubmit.disabled = !ready;
+      els.submitStatus.textContent = ready
+        ? "Your email draft is ready to be prepared."
+        : "Complete all fields and choose 3, 4, or 5 stars.";
+    }
 
     function setLanguage(lang) {
       const d = data[lang];
@@ -741,6 +1078,51 @@
       button.addEventListener("click", () => setLanguage(button.dataset.lang));
     });
 
+    document.querySelectorAll(".rating-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedRating = Number(button.dataset.rating);
+        updateReviewState();
+      });
+    });
+
+    ["reviewer-name", "reviewer-email", "review-text"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", updateReviewState);
+    });
+
+    els.reviewForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      updateReviewState();
+
+      if (!selectedRating || selectedRating < 3) {
+        els.submitStatus.textContent = "Please choose 3, 4, or 5 stars before sending your review.";
+        return;
+      }
+
+      const name = document.getElementById("reviewer-name").value.trim();
+      const email = document.getElementById("reviewer-email").value.trim();
+      const reviewText = document.getElementById("review-text").value.trim();
+      const emoji = emojiByRating[selectedRating];
+      const subject = encodeURIComponent(`New Website Review - ${selectedRating} Star ${emoji}`);
+      const body = encodeURIComponent(
+        `A new review was prepared from the website.\n\n` +
+        `Name: ${name}\n` +
+        `Email: ${email}\n` +
+        `Rating: ${selectedRating} Star ${emoji}\n\n` +
+        `Review Description:\n${reviewText}\n`
+      );
+
+      const reviews = getStoredReviews();
+      reviews.unshift({ name, email, rating: selectedRating, emoji });
+      saveStoredReviews(reviews);
+      renderStoredReviews();
+
+      els.submitStatus.textContent = "Email draft opened. Please press send from your email app.";
+      window.location.href = `mailto:hitesh.shastri2010@gmail.com?subject=${subject}&body=${body}`;
+    });
+
+    updateViewCount();
+    renderStoredReviews();
+    updateReviewState();
     setLanguage("en");
   </script>
 </body>
