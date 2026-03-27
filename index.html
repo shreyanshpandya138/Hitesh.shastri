@@ -770,6 +770,11 @@
 
         <div class="review-card">
           <form class="review-form" id="review-form">
+            <div class="field">
+              <label for="review-name">Name</label>
+              <input id="review-name" name="reviewName" type="text" required />
+            </div>
+
             <div class="rating-row">
               <div class="field">
                 <label>Rating</label>
@@ -1009,6 +1014,7 @@
       reviewForm: document.getElementById("review-form"),
       reviewSubmit: document.getElementById("review-submit"),
       submitStatus: document.getElementById("submit-status"),
+      reviewName: document.getElementById("review-name"),
       reviewText: document.getElementById("review-text"),
       viewCount: document.getElementById("view-count"),
       reviewCount: document.getElementById("review-count"),
@@ -1101,7 +1107,7 @@
 
       els.reviewsWall.innerHTML = uniqueReviews.map((item) => `
         <div class="full-review-card">
-          <strong>${item.rating} Star ${item.emoji}</strong>
+          <strong>${escapeHtml(item.name || "Anonymous")} - ${item.rating} Star ${item.emoji}</strong>
           <p>${escapeHtml(item.description)}</p>
           <small>${new Date(item.created_at).toLocaleDateString()}</small>
         </div>
@@ -1112,7 +1118,7 @@
       try {
         const { data: reviews, error } = await supabaseClient
           .from("reviews")
-          .select("id, rating, description, created_at")
+          .select("id, name, rating, description, created_at")
           .order("created_at", { ascending: false })
           .order("id", { ascending: false });
 
@@ -1146,8 +1152,9 @@
         button.classList.toggle("active", Boolean(selectedRating && buttonRating <= selectedRating));
       });
 
+      const reviewName = els.reviewName.value.trim();
       const reviewValue = els.reviewText.value.trim();
-      const ready = Boolean(reviewValue && selectedRating >= 1 && !isSubmitting);
+      const ready = Boolean(reviewName && reviewValue && selectedRating >= 1 && !isSubmitting);
 
       els.reviewSubmit.disabled = !ready;
     }
@@ -1181,9 +1188,10 @@
         return;
       }
 
+      const reviewName = els.reviewName.value.trim();
       const reviewText = els.reviewText.value.trim();
 
-      if (!reviewText) {
+      if (!reviewName || !reviewText) {
         return;
       }
 
@@ -1196,6 +1204,7 @@
           .from("reviews")
           .insert([
             {
+              name: reviewName,
               rating: selectedRating,
               description: reviewText
             }
@@ -1229,6 +1238,13 @@
     });
 
     els.reviewText.addEventListener("input", () => {
+      if (!isSubmitting) {
+        els.submitStatus.textContent = "";
+      }
+      updateReviewState();
+    });
+
+    els.reviewName.addEventListener("input", () => {
       if (!isSubmitting) {
         els.submitStatus.textContent = "";
       }
