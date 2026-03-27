@@ -533,6 +533,12 @@
       flex-wrap: wrap;
     }
 
+    .review-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
     .input-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -645,6 +651,31 @@
       color: #fff1c4;
     }
 
+    .reviews-wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .full-review-card {
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .full-review-card strong {
+      display: block;
+      color: var(--accent-strong);
+      margin-bottom: 0.35rem;
+    }
+
+    .full-review-card p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     .form-actions {
       display: flex;
       flex-wrap: wrap;
@@ -744,7 +775,10 @@
     <section class="card" id="review-section">
       <div class="review-launch">
         <h3 class="section-title">Reviews</h3>
-        <button class="btn-call" id="open-review" type="button">Write a Review</button>
+        <div class="review-actions">
+          <button class="btn-call" id="open-review" type="button">Review</button>
+          <a class="btn-secondary" href="#reviews-list">Reviews</a>
+        </div>
       </div>
       <div class="review-shell hidden" id="review-shell">
         <div class="review-stats">
@@ -760,11 +794,11 @@
           </div>
 
           <div class="review-card">
-            <p class="viewer-note">Recent review senders from this browser</p>
+            <p class="viewer-note">Recent visitors on this browser</p>
             <div class="viewer-list" id="viewer-list">
               <div class="viewer-item">
-                <span>No review sender yet</span>
-                <small>Waiting for first review</small>
+                <span>No visitor yet</span>
+                <small>Waiting for first visitor</small>
               </div>
             </div>
           </div>
@@ -772,23 +806,17 @@
 
         <div class="review-card">
           <form class="review-form" id="review-form">
-            <div class="input-grid">
-              <div class="field">
-                <label for="reviewer-name">Name</label>
-                <input id="reviewer-name" name="reviewerName" type="text" required />
-              </div>
-              <div class="field">
-                <label for="reviewer-email">Email</label>
-                <input id="reviewer-email" name="reviewerEmail" type="email" required />
-              </div>
+            <div class="field">
+              <label for="reviewer-name">Name</label>
+              <input id="reviewer-name" name="reviewerName" type="text" required />
             </div>
 
             <div class="rating-row">
               <div class="field">
                 <label>Rating</label>
                 <div class="rating-buttons">
-                  <button class="rating-btn disabled" type="button" data-rating="1" aria-disabled="true"><span class="star">⭐</span></button>
-                  <button class="rating-btn disabled" type="button" data-rating="2" aria-disabled="true"><span class="star">⭐</span></button>
+                  <button class="rating-btn" type="button" data-rating="1"><span class="star">⭐</span></button>
+                  <button class="rating-btn" type="button" data-rating="2"><span class="star">⭐</span></button>
                   <button class="rating-btn" type="button" data-rating="3"><span class="star">⭐</span></button>
                   <button class="rating-btn" type="button" data-rating="4"><span class="star">⭐</span></button>
                   <button class="rating-btn" type="button" data-rating="5"><span class="star">⭐</span></button>
@@ -910,6 +938,16 @@
         <li>Contribute according to your comfort level.</li>
       </ol>
     </section>
+
+    <section class="card" id="reviews-list">
+      <h3 class="section-title">Public Reviews</h3>
+      <p class="section-lead">Every submitted review appears here.</p>
+      <div class="reviews-wall" id="reviews-wall">
+        <div class="full-review-card">
+          <p>No reviews submitted yet.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -1014,6 +1052,7 @@
       reviewCount: document.getElementById("review-count"),
       viewerList: document.getElementById("viewer-list"),
       reviewFeed: document.getElementById("review-feed"),
+      reviewsWall: document.getElementById("reviews-wall"),
       reviewShell: document.getElementById("review-shell"),
       openReview: document.getElementById("open-review"),
       noFee: document.getElementById("no-fee"),
@@ -1024,10 +1063,13 @@
 
     const STORAGE_KEYS = {
       views: "portfolio_view_count",
-      reviews: "portfolio_review_senders"
+      reviews: "portfolio_review_senders",
+      visitors: "portfolio_visitors"
     };
 
     const emojiByRating = {
+      1: "😞",
+      2: "😕",
       3: "🙂",
       4: "😊",
       5: "🤩"
@@ -1057,30 +1099,59 @@
       localStorage.setItem(STORAGE_KEYS.reviews, JSON.stringify(reviews.slice(0, 6)));
     }
 
+    function getStoredVisitors() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.visitors) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveStoredVisitors(visitors) {
+      localStorage.setItem(STORAGE_KEYS.visitors, JSON.stringify(visitors.slice(0, 8)));
+    }
+
     function renderStoredReviews() {
       const reviews = getStoredReviews();
+      const visitors = getStoredVisitors();
       els.reviewCount.textContent = String(reviews.length);
 
-      if (!reviews.length) {
+      if (!visitors.length) {
         els.viewerList.innerHTML = `
           <div class="viewer-item">
-            <span>No review sender yet</span>
-            <small>Waiting for first review</small>
+            <span>No visitor yet</span>
+            <small>Waiting for first visitor</small>
           </div>
         `;
+      } else {
+        els.viewerList.innerHTML = visitors.map((item) => `
+          <div class="viewer-item">
+            <span>${escapeHtml(item.email)}</span>
+            <small>${escapeHtml(item.city)}, ${escapeHtml(item.state)}</small>
+          </div>
+        `).join("");
+      }
+
+      if (!reviews.length) {
         els.reviewFeed.innerHTML = `<div class="review-feed-card review-feed-empty">Reviews will appear here.</div>`;
+        els.reviewsWall.innerHTML = `
+          <div class="full-review-card">
+            <p>No reviews submitted yet.</p>
+          </div>
+        `;
         return;
       }
 
-      els.viewerList.innerHTML = reviews.map((item) => `
-        <div class="viewer-item">
-          <span>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</span>
-          <small>${escapeHtml(item.email)}</small>
+      els.reviewFeed.innerHTML = reviews.slice(0, 3).map((item) => `
+        <div class="review-feed-card">
+          <strong>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</strong>
+          <p>${escapeHtml(item.description)}</p>
         </div>
       `).join("");
 
-      els.reviewFeed.innerHTML = reviews.slice(0, 3).map((item) => `
-        <div class="review-feed-card">
+      els.reviewsWall.innerHTML = reviews.map((item) => `
+        <div class="full-review-card">
           <strong>${escapeHtml(item.name)} - ${item.rating} Star ${item.emoji}</strong>
           <p>${escapeHtml(item.description)}</p>
         </div>
@@ -1096,13 +1167,12 @@
     function updateReviewState() {
       document.querySelectorAll(".rating-btn").forEach((button) => {
         const buttonRating = Number(button.dataset.rating);
-        button.classList.toggle("active", Boolean(selectedRating && buttonRating <= selectedRating && buttonRating >= 3));
+        button.classList.toggle("active", Boolean(selectedRating && buttonRating <= selectedRating));
       });
 
       const nameValue = document.getElementById("reviewer-name").value.trim();
-      const emailValue = document.getElementById("reviewer-email").value.trim();
       const reviewValue = document.getElementById("review-text").value.trim();
-      const ready = Boolean(nameValue && emailValue && reviewValue && selectedRating >= 3);
+      const ready = Boolean(nameValue && reviewValue && selectedRating >= 1);
 
       els.reviewSubmit.disabled = !ready;
       els.submitStatus.textContent = ready
@@ -1146,7 +1216,7 @@
       });
     });
 
-    ["reviewer-name", "reviewer-email", "review-text"].forEach((id) => {
+    ["reviewer-name", "review-text"].forEach((id) => {
       document.getElementById(id).addEventListener("input", updateReviewState);
     });
 
@@ -1154,25 +1224,16 @@
       event.preventDefault();
       updateReviewState();
 
-      if (!selectedRating || selectedRating < 3) {
+      if (!selectedRating || selectedRating < 1) {
         return;
       }
 
       const name = document.getElementById("reviewer-name").value.trim();
-      const email = document.getElementById("reviewer-email").value.trim();
       const reviewText = document.getElementById("review-text").value.trim();
       const emoji = emojiByRating[selectedRating];
-      const subject = encodeURIComponent(`New Website Review - ${selectedRating} Star ${emoji}`);
-      const body = encodeURIComponent(
-        `A new review was prepared from the website.\n\n` +
-        `Name: ${name}\n` +
-        `Email: ${email}\n` +
-        `Rating: ${selectedRating} Star ${emoji}\n\n` +
-        `Review Description:\n${reviewText}\n`
-      );
 
       const reviews = getStoredReviews();
-      reviews.unshift({ name, email, rating: selectedRating, emoji, description: reviewText });
+      reviews.unshift({ name, rating: selectedRating, emoji, description: reviewText });
       saveStoredReviews(reviews);
       renderStoredReviews();
 
@@ -1180,7 +1241,7 @@
       selectedRating = null;
       updateReviewState();
       els.reviewShell.classList.add("hidden");
-      window.location.href = `mailto:hitesh.shastri2010@gmail.com?subject=${subject}&body=${body}`;
+      document.getElementById("reviews-list").scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     els.openReview.addEventListener("click", () => {
